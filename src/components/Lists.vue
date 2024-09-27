@@ -3,10 +3,10 @@
     <h1>Lists</h1>
     <ul>
       <li v-for="list in lists" :key="list.id">
-        {{ list.name }}
+        <span :class="{ 'crossed-out': list.crossedOut }">{{ list.name }}</span>
         <ul>
           <li v-for="item in list.items" :key="item.id">
-            <span :class="{ 'crossed-out': item.crossedOut }">{{ item.text }}</span>
+            <span :class="{ 'crossed-out': item.crossedOut }">{{ item.name }}</span>
           </li>
         </ul>
       </li>
@@ -25,7 +25,8 @@ export default {
   data() {
     return {
       lists: [],
-      newListName: ''
+      newListName: '',
+      newItemName: ''
     }
   },
   mounted() {
@@ -36,6 +37,8 @@ export default {
       axios.get('lists')
         .then(response => {
           this.lists = response.data
+          // Now that lists are loaded, fetch items for each list
+          this.lists.forEach(list => this.getItemsByList(list.id));
         })
         .catch(error => {
           console.error(error)
@@ -59,6 +62,32 @@ export default {
         .catch(error => {
           console.error(error)
         })
+    },
+    getItemsByList(listId) {
+      // TODO: Remove hard-coded test user ID once authentication code is added
+      axios.get(`lists/${listId}/items?userId=1`)
+        .then(response => {
+          const list = this.lists.find(list => list.id === listId)
+          list.items = response.data
+        })
+        .catch(error => {
+          console.error(error)
+        })
+    },
+    
+    addItem(listId) {
+      if (this.newItemName.trim() === '') {
+        alert('Please enter a list item name')
+        return
+      }
+      axios.post(`lists/${listId}/items`, { name: this.newItemName })
+        .then(() => {
+          this.loadLists()
+          this.newItemName = ''
+        })
+        .catch(error => {
+          console.error(error)
+        })
     }
   }
 }
@@ -67,5 +96,10 @@ export default {
 <style>
 .crossed-out {
   text-decoration: line-through;
+}
+.add-item-form {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
 }
 </style>
