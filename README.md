@@ -1,4 +1,4 @@
-# Grocery List Manager Vue UI
+# SplendifeList Vue UI
 ## Common Commands
 - Temporarily add Node to PATH
     - `nvs`
