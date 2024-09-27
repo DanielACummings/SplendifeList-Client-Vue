@@ -50,9 +50,10 @@ export default {
         alert('List name already in use')
         return
       }
-      axios.post('lists', { name: this.newListName })
-        .then(response => {
-          this.lists.push(response.data)
+      // TODO: Remove hard-coded test user ID once authentication code is added
+      axios.post('lists', { name: this.newListName, user: 1})
+        .then(() => {
+          this.loadLists()
           this.newListName = ''
         })
         .catch(error => {
